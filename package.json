@@ -1,6 +1,6 @@
 
 {
-  "name": "login-form-library",
+  "name": "login-form",
   "version": "1.0.0",
   "description": "A reusable React login component library with a demo app",
   "type": "module",
