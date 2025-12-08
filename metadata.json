@@ -1,7 +1,5 @@
 {
   "name": "login-form",
   "description": "A responsive React application for user authentication with day/night theme support. It handles login via a FormData POST request, manages session with HttpOnly cookies, and protects routes.",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "requestFramePermissions": []
 }
