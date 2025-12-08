@@ -69,9 +69,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, authServic
     }
   };
 
+  // React 19 allows using the Context directly as a provider
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, login, logout, checkAuthStatus }}>
+    <AuthContext value={{ isAuthenticated, user, isLoading, login, logout, checkAuthStatus }}>
       {children}
-    </AuthContext.Provider>
+    </AuthContext>
   );
 };
