@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { AuthProvider, LoginForm, useAuth } from '../lib';
+import { AuthProvider, LoginForm, useAuth, TopBar, MenuItem } from '../lib';
 import { login, logout, checkAuth } from './services/authService';
 import { ThemeProvider } from './context/ThemeContext';
-import ThemeToggle from './components/ThemeToggle';
-import { LoaderCircle, LogOut, CheckCircle } from 'lucide-react';
+import { useTheme } from './hooks/useTheme';
+import { LoaderCircle, CheckCircle } from 'lucide-react';
 
 // Adapter to match the library interface with our existing service
 const authServiceAdapter = {
@@ -20,7 +20,7 @@ const authServiceAdapter = {
 };
 
 const DemoContent: React.FC = () => {
-  const { isAuthenticated, user, isLoading, logout } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -40,13 +40,7 @@ const DemoContent: React.FC = () => {
         <p className="text-gray-600 dark:text-gray-300 mb-6">
           Benvenuto nella demo, <span className="font-semibold text-blue-500">{user?.username}</span>.
         </p>
-        <button
-          onClick={() => logout()}
-          className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </button>
+        <p className="text-sm text-gray-500">Usa il menu in alto per navigare o fare logout.</p>
       </div>
     );
   }
@@ -54,25 +48,47 @@ const DemoContent: React.FC = () => {
   return <LoginForm />;
 };
 
+// Layout component handles the structure now that it has access to auth context
+const AppLayout: React.FC = () => {
+    const { theme, toggleTheme } = useTheme();
+    const { isAuthenticated, user, logout } = useAuth();
+
+    const menuItems: MenuItem[] = [
+        { label: 'Dashboard', action: () => alert('Navigazione a Dashboard...') },
+        { label: 'Impostazioni', action: () => alert('Apertura Impostazioni...') },
+        { label: 'Profilo', action: () => alert('Visualizza Profilo...') },
+    ];
+
+    return (
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col transition-colors duration-300">
+            <TopBar 
+                title="Login Library Demo"
+                isAuthenticated={isAuthenticated}
+                user={user}
+                currentTheme={theme}
+                onToggleTheme={toggleTheme}
+                onLogout={logout}
+                menuItems={menuItems}
+            />
+            
+            <main className="flex-grow flex items-center justify-center p-4">
+                <DemoContent />
+            </main>
+
+            <footer className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+               {!isAuthenticated && <p>Usa <strong>admin</strong> / <strong>password</strong> per testare.</p>}
+               {isAuthenticated && <p>Sessione attiva per {user?.username}</p>}
+            </footer>
+        </div>
+    );
+};
+
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col transition-colors duration-300">
-         <header className="p-4 flex justify-between items-center bg-white dark:bg-gray-800 shadow-sm z-10">
-            <h1 className="text-xl font-bold text-gray-800 dark:text-white">Login Library Demo</h1>
-            <ThemeToggle />
-         </header>
-         
-         <main className="flex-grow flex items-center justify-center p-4">
-             <AuthProvider authService={authServiceAdapter}>
-                <DemoContent />
-             </AuthProvider>
-         </main>
-
-         <footer className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
-            <p>Usa <strong>admin</strong> / <strong>password</strong> per testare.</p>
-         </footer>
-      </div>
+        <AuthProvider authService={authServiceAdapter}>
+            <AppLayout />
+        </AuthProvider>
     </ThemeProvider>
   );
 };
